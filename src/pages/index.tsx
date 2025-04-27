@@ -1,19 +1,9 @@
 import { TaskCard } from "@/components/TaskCard";
 import { TaskForm } from "@/components/TaskForm";
-import {
-  Alert,
-  AlertDescription,
-  AlertIcon,
-  AlertTitle,
-  Box,
-  Divider,
-  Flex,
-  HStack,
-  Stack,
-  Text,
-} from "@chakra-ui/react";
+import { Box, Divider, Flex, HStack, Stack, Text } from "@chakra-ui/react";
 import React from "react";
 import { ChangeEvent, useState } from "react";
+import { AlertIcon, AlertIconComponent } from "@/components/AlertIcon";
 
 import { v4 as uuidv4 } from "uuid";
 
@@ -24,44 +14,59 @@ interface TaskProps {
 }
 
 function App() {
-  const [tasks, setTasks] = useState<TaskProps[]>([]); // array de todas as tasks
-  const [taskInput, setTaskInput] = useState(""); // controlar o estado do componente input
+  const [tasks, setTasks] = useState<TaskProps[]>([]);
+  const [taskInput, setTaskInput] = useState("");
 
-  const openTasks = tasks.filter((task) => task.status === false);
-  const completedTasks = tasks.filter((task) => task.status === true);
+  const openTasks = tasks.filter((task) => !task.status);
+  const completedTasks = tasks.filter((task) => task.status);
 
   const handleChangeInput = (e: ChangeEvent<HTMLInputElement>) => {
-    // changeEventdoTypescript(tipagem)
-    setTaskInput(e.currentTarget.value); // atualizar o estado do componente
+    setTaskInput(e.currentTarget.value);
   };
 
   const handleCreateTask = () => {
-    // função de criação
     const newTask = { id: uuidv4(), label: taskInput, status: false };
     setTasks((tarefas) => [...tarefas, newTask]);
     setTaskInput("");
   };
 
   const handleExcluirTask = (id: string) => {
-    const novasTarefasDepoisDeExcluir = tasks.filter((task) => task.id !== id);
-    setTasks(novasTarefasDepoisDeExcluir); // se a tarefa do id for diferente da tarefa do id por parametro, devolve o array de tasks sem o id do parametro
+    setTasks((tarefas) => tarefas.filter((task) => task.id !== id));
   };
 
   const handleTaskCompletada = (id: string) => {
-    setTasks((atualTarefas) =>
-      atualTarefas.map((tasks) =>
-        tasks.id === id ? { ...tasks, status: true } : tasks
+    setTasks((tarefas) =>
+      tarefas.map((task) =>
+        task.id === id ? { ...task, status: true } : task
       )
     );
   };
 
   const handleReopenTask = (id: string) => {
-    setTasks((atualTarefas) =>
-      atualTarefas.map((task) =>
+    setTasks((tarefas) =>
+      tarefas.map((task) =>
         task.id === id ? { ...task, status: false } : task
       )
     );
   };
+
+  const renderTaskCards = (
+    tasks: TaskProps[],
+    handleExcluirTask: (id: string) => void,
+    handleTaskCompletada: (id: string) => void
+  ) => {
+    return tasks.map((task) => (
+      <TaskCard
+        key={task.id}
+        id={task.id}
+        label={task.label}
+        status={task.status}
+        removeTask={() => handleExcluirTask(task.id)}
+        taskChangeStatus={() => handleTaskCompletada(task.id)}
+      />
+    ));
+  };
+  
 
   return (
     <Stack w="full" h="100vh" alignItems="center" flexDirection="column" p={10}>
@@ -81,26 +86,12 @@ function App() {
         </Text>
 
         {openTasks.length !== 0 ? (
-          openTasks.map((task) => (
-            <TaskCard
-              key={task.id}
-              id={task.id}
-              label={task.label}
-              status={task.status}
-              removeTask={() => handleExcluirTask(task.id)}
-              taskChangeStatus={() => handleTaskCompletada(task.id)}
-            />
-          ))
+          renderTaskCards(openTasks, handleExcluirTask, handleTaskCompletada)
         ) : (
-          <Alert status="success" borderRadius={6}>
-            <AlertIcon />
-            <Box>
-              <AlertTitle>Parabéns!</AlertTitle>
-              <AlertDescription>
-                Você completou todas as tarefas.
-              </AlertDescription>
-            </Box>
-          </Alert>
+          <AlertIconComponent
+            title="Parabéns!"
+            description="Você completou todas as tarefas!"
+          />
         )}
 
         <Divider />
@@ -110,23 +101,9 @@ function App() {
         </Text>
 
         {completedTasks.length !== 0 ? (
-          completedTasks.map((task) => (
-            <TaskCard
-              key={task.id}
-              id={task.id}
-              label={task.label}
-              status={task.status}
-              removeTask={() => handleExcluirTask(task.id)}
-              taskChangeStatus={() => handleReopenTask(task.id)}
-            />
-          ))
+          renderTaskCards(completedTasks, handleExcluirTask, handleReopenTask)
         ) : (
-          <Alert status="info" borderRadius={6}>
-            <AlertIcon />
-            <Box>
-              <AlertTitle>Nenhuma tarefa completa</AlertTitle>
-            </Box>
-          </Alert>
+          <AlertIconComponent title="Nenhuma tarefa completada!" />
         )}
       </Flex>
     </Stack>
