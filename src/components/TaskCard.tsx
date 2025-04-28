@@ -1,11 +1,11 @@
-import { Card, CardBody, Checkbox, IconButton, Text } from "@chakra-ui/react";
-import { DeleteIcon } from "@chakra-ui/icons";
-import React from "react";
-import { ScaleFade } from "@chakra-ui/react"; // Certifique-se de que está importando ScaleFade corretamente
+import { Card, CardBody, Checkbox, IconButton, Text } from '@chakra-ui/react';
+import { DeleteIcon } from '@chakra-ui/icons';
+import React from 'react';
+import { ScaleFade } from '@chakra-ui/react'; // Certifique-se de que está importando ScaleFade corretamente
 
 interface TaskCardProps {
   id: string;
-  status: boolean;
+  isCompleted: boolean;
   label: string;
   taskChangeStatus: () => void;
   removeTask: () => void;
@@ -13,7 +13,7 @@ interface TaskCardProps {
 
 export const TaskCard: React.FC<TaskCardProps> = ({
   id,
-  status,
+  isCompleted,
   taskChangeStatus,
   removeTask,
   label,
@@ -21,7 +21,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
   return (
     <ScaleFade initialScale={0.9} in={true}>
       <>
-        <Card w="full" bg={status ? "blackAlpha.300" : ""}>
+        <Card w="full" bg={isCompleted ? 'blackAlpha.300' : ''}>
           <CardBody
             display="flex"
             alignItems="center"
@@ -31,9 +31,9 @@ export const TaskCard: React.FC<TaskCardProps> = ({
               w="full"
               id={id}
               onChange={taskChangeStatus}
-              isChecked={status}
+              isChecked={isCompleted}
             >
-              <Text as={status ? "del" : "b"}>{label}</Text>
+              <Text as={isCompleted ? 'del' : 'b'}>{label}</Text>
             </Checkbox>
             <IconButton
               aria-label="delete task"
